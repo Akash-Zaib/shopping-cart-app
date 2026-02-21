@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/cart_provider.dart';
 import '../providers/locale_provider.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 import '../utils/routes.dart';
 import '../widgets/cart_item_tile.dart';
 
@@ -15,6 +16,7 @@ class CartScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final cart = Provider.of<CartProvider>(context);
     final locale = Provider.of<LocaleProvider>(context, listen: false);
+    final r = ResponsiveHelper(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -55,63 +57,80 @@ class CartScreen extends StatelessWidget {
         ],
       ),
       body: cart.items.isEmpty
-          ? _buildEmptyCart(context, l10n)
+          ? _buildEmptyCart(context, l10n, r)
           : Column(
               children: [
                 Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: cart.items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      return CartItemTile(item: cart.items[index]);
-                    },
+                  child: r.constrainedContent(
+                    child: ListView.separated(
+                      padding: EdgeInsets.all(r.horizontalPadding),
+                      itemCount: cart.items.length,
+                      separatorBuilder: (_, __) => SizedBox(height: r.h(12)),
+                      itemBuilder: (context, index) {
+                        return CartItemTile(item: cart.items[index]);
+                      },
+                    ),
                   ),
                 ),
-                _buildOrderSummary(context, cart, locale, l10n),
+                _buildOrderSummary(context, cart, locale, l10n, r),
               ],
             ),
     );
   }
 
-  Widget _buildEmptyCart(BuildContext context, AppLocalizations l10n) {
+  Widget _buildEmptyCart(
+      BuildContext context, AppLocalizations l10n, ResponsiveHelper r) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(r.horizontalPadding * 2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.shopping_cart_outlined,
-              size: 100,
+              size: r.iconSize(100),
               color: Colors.grey.shade300,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: r.h(24)),
             Text(
               l10n.t('emptyCart'),
-              style: const TextStyle(
-                fontSize: 22,
+              style: TextStyle(
+                fontSize: r.sp(22),
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: r.h(8)),
             Text(
               l10n.t('emptyCartDesc'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey.shade500,
-                fontSize: 15,
+                fontSize: r.sp(15),
               ),
             ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                context,
-                AppRoutes.home,
-                (route) => false,
+            SizedBox(height: r.h(32)),
+            SizedBox(
+              height: r.buttonHeight,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  AppRoutes.home,
+                  (route) => false,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.shopping_bag_outlined,
+                        size: r.iconSize(18)),
+                    SizedBox(width: r.w(8)),
+                    Flexible(
+                      child: Text(l10n.t('startShopping'),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: r.sp(14))),
+                    ),
+                  ],
+                ),
               ),
-              icon: const Icon(Icons.shopping_bag_outlined),
-              label: Text(l10n.t('startShopping')),
             ),
           ],
         ),
@@ -124,9 +143,10 @@ class CartScreen extends StatelessWidget {
     CartProvider cart,
     LocaleProvider locale,
     AppLocalizations l10n,
+    ResponsiveHelper r,
   ) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(r.cardPadding),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: const BorderRadius.vertical(
@@ -141,46 +161,54 @@ class CartScreen extends StatelessWidget {
         ],
       ),
       child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildSummaryRow(
-              l10n.t('subtotal'),
-              locale.formatPrice(cart.subtotal),
-            ),
-            const SizedBox(height: 8),
-            _buildSummaryRow(
-              l10n.t('shipping'),
-              cart.shipping == 0 ? l10n.t('free') : locale.formatPrice(cart.shipping),
-              valueColor: cart.shipping == 0 ? AppColors.success : null,
-            ),
-            const SizedBox(height: 8),
-            _buildSummaryRow(
-              l10n.t('tax'),
-              locale.formatPrice(cart.tax),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Divider(),
-            ),
-            _buildSummaryRow(
-              l10n.t('total'),
-              locale.formatPrice(cart.total),
-              isBold: true,
-              fontSize: 18,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.checkout),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text(l10n.t('proceedToCheckout')),
+        child: r.constrainedContent(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildSummaryRow(
+                l10n.t('subtotal'),
+                locale.formatPrice(cart.subtotal),
+                r: r,
+              ),
+              SizedBox(height: r.h(8)),
+              _buildSummaryRow(
+                l10n.t('shipping'),
+                cart.shipping == 0
+                    ? l10n.t('free')
+                    : locale.formatPrice(cart.shipping),
+                valueColor: cart.shipping == 0 ? AppColors.success : null,
+                r: r,
+              ),
+              SizedBox(height: r.h(8)),
+              _buildSummaryRow(
+                l10n.t('tax'),
+                locale.formatPrice(cart.tax),
+                r: r,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: r.h(12)),
+                child: const Divider(),
+              ),
+              _buildSummaryRow(
+                l10n.t('total'),
+                locale.formatPrice(cart.total),
+                isBold: true,
+                fontSize: r.sp(18),
+                r: r,
+              ),
+              SizedBox(height: r.h(16)),
+              SizedBox(
+                width: double.infinity,
+                height: r.buttonHeight,
+                child: ElevatedButton(
+                  onPressed: () =>
+                      Navigator.pushNamed(context, AppRoutes.checkout),
+                  child: Text(l10n.t('proceedToCheckout'),
+                      style: TextStyle(fontSize: r.sp(15))),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -192,7 +220,9 @@ class CartScreen extends StatelessWidget {
     bool isBold = false,
     double fontSize = 14,
     Color? valueColor,
+    required ResponsiveHelper r,
   }) {
+    final fs = fontSize == 14 ? r.sp(14) : fontSize;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -200,7 +230,7 @@ class CartScreen extends StatelessWidget {
           label,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontSize: fontSize,
+            fontSize: fs,
             color: isBold ? null : Colors.grey.shade600,
           ),
         ),
@@ -208,7 +238,7 @@ class CartScreen extends StatelessWidget {
           value,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-            fontSize: fontSize,
+            fontSize: fs,
             color: valueColor,
           ),
         ),

@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../models/product.dart';
 import '../providers/locale_provider.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 import '../utils/routes.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -46,12 +47,14 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Provider.of<LocaleProvider>(context, listen: false);
+    final r = ResponsiveHelper(context);
 
     return Scaffold(
       appBar: AppBar(
         title: TextField(
           controller: _searchController,
           autofocus: true,
+          style: TextStyle(fontSize: r.sp(15)),
           decoration: InputDecoration(
             hintText: l10n.t('searchProducts'),
             border: InputBorder.none,
@@ -76,28 +79,31 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.search_off, size: 80, color: Colors.grey.shade300),
-                      const SizedBox(height: 16),
+                      Icon(Icons.search_off,
+                          size: r.iconSize(80), color: Colors.grey.shade300),
+                      SizedBox(height: r.h(16)),
                       Text(
                         l10n.t('noResults'),
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: r.sp(18),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
                 )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _results.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final product = _results[index];
-                    return _buildResultItem(context, product, locale);
-                  },
+              : r.constrainedContent(
+                  child: ListView.separated(
+                    padding: EdgeInsets.all(r.horizontalPadding),
+                    itemCount: _results.length,
+                    separatorBuilder: (_, __) => SizedBox(height: r.h(10)),
+                    itemBuilder: (context, index) {
+                      final product = _results[index];
+                      return _buildResultItem(context, product, locale, r);
+                    },
+                  ),
                 )
-          : _buildSuggestions(context, l10n),
+          : _buildSuggestions(context, l10n, r),
     );
   }
 
@@ -105,13 +111,16 @@ class _SearchScreenState extends State<SearchScreen> {
     BuildContext context,
     Product product,
     LocaleProvider locale,
+    ResponsiveHelper r,
   ) {
+    final imgSize = r.w(70).clamp(60.0, 100.0);
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, AppRoutes.productDetail, arguments: product);
+        Navigator.pushNamed(context, AppRoutes.productDetail,
+            arguments: product);
       },
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(r.cardPadding * 0.75),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(AppDimens.radiusMD),
@@ -129,23 +138,23 @@ class _SearchScreenState extends State<SearchScreen> {
               borderRadius: BorderRadius.circular(AppDimens.radiusSM),
               child: CachedNetworkImage(
                 imageUrl: product.imageUrl,
-                width: 70,
-                height: 70,
+                width: imgSize,
+                height: imgSize,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
-                  width: 70,
-                  height: 70,
+                  width: imgSize,
+                  height: imgSize,
                   color: Colors.grey.shade200,
                 ),
                 errorWidget: (context, url, error) => Container(
-                  width: 70,
-                  height: 70,
+                  width: imgSize,
+                  height: imgSize,
                   color: Colors.grey.shade200,
                   child: const Icon(Icons.image_not_supported_outlined),
                 ),
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: r.w(14)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,27 +163,28 @@ class _SearchScreenState extends State<SearchScreen> {
                     product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                      fontSize: r.sp(15),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: r.h(4)),
                   Text(
                     product.category,
                     style: TextStyle(
                       color: Colors.grey.shade500,
-                      fontSize: 12,
+                      fontSize: r.sp(12),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: r.h(4)),
                   Row(
                     children: [
-                      const Icon(Icons.star, color: AppColors.star, size: 14),
-                      const SizedBox(width: 4),
+                      Icon(Icons.star,
+                          color: AppColors.star, size: r.iconSize(14)),
+                      SizedBox(width: r.w(4)),
                       Text(
                         '${product.rating}',
-                        style: const TextStyle(fontSize: 12),
+                        style: TextStyle(fontSize: r.sp(12)),
                       ),
                     ],
                   ),
@@ -189,13 +199,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
+                    fontSize: r.sp(14),
                   ),
                 ),
                 if (product.discount > 0)
                   Text(
                     locale.formatPrice(product.price),
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: r.sp(12),
                       color: Colors.grey.shade500,
                       decoration: TextDecoration.lineThrough,
                     ),
@@ -208,73 +219,76 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildSuggestions(BuildContext context, AppLocalizations l10n) {
+  Widget _buildSuggestions(
+      BuildContext context, AppLocalizations l10n, ResponsiveHelper r) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.t('categories'),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+      padding: EdgeInsets.all(r.horizontalPadding),
+      child: r.constrainedContent(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.t('categories'),
+              style: TextStyle(
+                fontSize: r.sp(18),
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: categories.map((cat) {
-              return GestureDetector(
-                onTap: () {
-                  _searchController.text = cat;
-                  _onSearch(cat);
-                },
-                child: Chip(
-                  label: Text(cat),
-                  avatar: Icon(
-                    _getCategoryIcon(cat),
-                    size: 18,
-                    color: AppColors.primary,
+            SizedBox(height: r.h(12)),
+            Wrap(
+              spacing: r.w(8),
+              runSpacing: r.h(8),
+              children: categories.map((cat) {
+                return GestureDetector(
+                  onTap: () {
+                    _searchController.text = cat;
+                    _onSearch(cat);
+                  },
+                  child: Chip(
+                    label: Text(cat, style: TextStyle(fontSize: r.sp(13))),
+                    avatar: Icon(
+                      _getCategoryIcon(cat),
+                      size: r.iconSize(18),
+                      color: AppColors.primary,
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 28),
-          Text(
-            l10n.t('specialOffers'),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+                );
+              }).toList(),
             ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildSuggestionChip('Headphones'),
-              _buildSuggestionChip('Leather Jacket'),
-              _buildSuggestionChip('Yoga Mat'),
-              _buildSuggestionChip('Skincare'),
-              _buildSuggestionChip('Smart Watch'),
-            ],
-          ),
-        ],
+            SizedBox(height: r.h(28)),
+            Text(
+              l10n.t('specialOffers'),
+              style: TextStyle(
+                fontSize: r.sp(18),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: r.h(12)),
+            Wrap(
+              spacing: r.w(8),
+              runSpacing: r.h(8),
+              children: [
+                _buildSuggestionChip('Headphones', r),
+                _buildSuggestionChip('Leather Jacket', r),
+                _buildSuggestionChip('Yoga Mat', r),
+                _buildSuggestionChip('Skincare', r),
+                _buildSuggestionChip('Smart Watch', r),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSuggestionChip(String text) {
+  Widget _buildSuggestionChip(String text, ResponsiveHelper r) {
     return GestureDetector(
       onTap: () {
         _searchController.text = text;
         _onSearch(text);
       },
       child: Chip(
-        label: Text(text, style: const TextStyle(fontSize: 13)),
+        label: Text(text, style: TextStyle(fontSize: r.sp(13))),
         backgroundColor: AppColors.primary.withValues(alpha: 0.08),
       ),
     );
@@ -282,13 +296,20 @@ class _SearchScreenState extends State<SearchScreen> {
 
   IconData _getCategoryIcon(String category) {
     switch (category) {
-      case 'Electronics': return Icons.devices;
-      case 'Fashion': return Icons.checkroom;
-      case 'Home': return Icons.home_outlined;
-      case 'Sports': return Icons.fitness_center;
-      case 'Beauty': return Icons.spa_outlined;
-      case 'Books': return Icons.menu_book_outlined;
-      default: return Icons.category;
+      case 'Electronics':
+        return Icons.devices;
+      case 'Fashion':
+        return Icons.checkroom;
+      case 'Home':
+        return Icons.home_outlined;
+      case 'Sports':
+        return Icons.fitness_center;
+      case 'Beauty':
+        return Icons.spa_outlined;
+      case 'Books':
+        return Icons.menu_book_outlined;
+      default:
+        return Icons.category;
     }
   }
 }

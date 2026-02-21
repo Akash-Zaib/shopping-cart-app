@@ -1,4 +1,5 @@
 class UserProfile {
+  final String uid;
   final String name;
   final String email;
   final String phone;
@@ -7,19 +8,23 @@ class UserProfile {
   final String city;
   final String country;
   final String zipCode;
+  final bool isGuest;
 
   const UserProfile({
-    this.name = 'Alex Johnson',
-    this.email = 'alex.johnson@email.com',
-    this.phone = '+1 (555) 123-4567',
-    this.avatarUrl = 'https://i.pravatar.cc/300?img=11',
-    this.address = '123 Flutter Lane',
-    this.city = 'San Francisco',
-    this.country = 'United States',
-    this.zipCode = '94102',
+    this.uid = '',
+    this.name = 'Guest User',
+    this.email = '',
+    this.phone = '',
+    this.avatarUrl = '',
+    this.address = '',
+    this.city = '',
+    this.country = '',
+    this.zipCode = '',
+    this.isGuest = true,
   });
 
   UserProfile copyWith({
+    String? uid,
     String? name,
     String? email,
     String? phone,
@@ -28,8 +33,10 @@ class UserProfile {
     String? city,
     String? country,
     String? zipCode,
+    bool? isGuest,
   }) {
     return UserProfile(
+      uid: uid ?? this.uid,
       name: name ?? this.name,
       email: email ?? this.email,
       phone: phone ?? this.phone,
@@ -38,6 +45,7 @@ class UserProfile {
       city: city ?? this.city,
       country: country ?? this.country,
       zipCode: zipCode ?? this.zipCode,
+      isGuest: isGuest ?? this.isGuest,
     );
   }
 }

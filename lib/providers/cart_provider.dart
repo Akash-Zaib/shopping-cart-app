@@ -22,6 +22,12 @@ class CartProvider with ChangeNotifier {
     return _items.any((item) => item.product.id == productId);
   }
 
+  int getProductQuantity(String productId) {
+    return _items
+        .where((item) => item.product.id == productId)
+        .fold(0, (sum, item) => sum + item.quantity);
+  }
+
   void addToCart(Product product, {String? color, String? size, int quantity = 1}) {
     final existingIndex = _items.indexWhere(
       (item) =>

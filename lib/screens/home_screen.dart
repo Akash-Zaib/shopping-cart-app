@@ -5,12 +5,12 @@ import '../l10n/app_localizations.dart';
 import '../models/product.dart';
 import '../providers/locale_provider.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 import '../utils/routes.dart';
 import '../widgets/banner_carousel.dart';
 import '../widgets/category_chip.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/product_card.dart';
-import '../widgets/responsive_layout.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,8 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = Provider.of<LocaleProvider>(context);
-    final crossAxisCount = ResponsiveLayout.getGridCrossAxisCount(context);
-    final aspectRatio = ResponsiveLayout.getGridChildAspectRatio(context);
+    final r = ResponsiveHelper(context);
+    final crossAxisCount = r.gridCrossAxisCount;
+    final aspectRatio = r.gridChildAspectRatio;
 
     return Scaffold(
       body: SafeArea(
@@ -61,7 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
             // App Bar
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
+                padding: EdgeInsets.fromLTRB(
+                    r.horizontalPadding, r.h(16), r.horizontalPadding - 8, r.h(8)),
                 child: Row(
                   children: [
                     Expanded(
@@ -72,14 +74,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             l10n.t('discoverMore'),
                             style: TextStyle(
                               color: Colors.grey.shade500,
-                              fontSize: 13,
+                              fontSize: r.sp(13),
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: r.h(2)),
                           Text(
                             'ShopVibe ${locale.region.flag}',
-                            style: const TextStyle(
-                              fontSize: 24,
+                            style: TextStyle(
+                              fontSize: r.sp(24),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -97,8 +99,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoutes.search),
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  margin: EdgeInsets.symmetric(
+                      horizontal: r.horizontalPadding, vertical: r.h(8)),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: r.cardPadding, vertical: r.h(14)),
                   decoration: BoxDecoration(
                     color: Theme.of(context).inputDecorationTheme.fillColor,
                     borderRadius: BorderRadius.circular(AppDimens.radiusMD),
@@ -106,11 +110,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.search, color: Colors.grey.shade400),
-                      const SizedBox(width: 12),
+                      Icon(Icons.search,
+                          color: Colors.grey.shade400,
+                          size: r.iconSize(24)),
+                      SizedBox(width: r.w(12)),
                       Text(
                         l10n.t('searchProducts'),
-                        style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+                        style: TextStyle(
+                            color: Colors.grey.shade400, fontSize: r.sp(15)),
                       ),
                     ],
                   ),
@@ -119,21 +126,22 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // Banner
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: BannerCarousel(),
+                padding: EdgeInsets.only(top: r.h(8)),
+                child: const BannerCarousel(),
               ),
             ),
 
             // Categories
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+                padding: EdgeInsets.fromLTRB(
+                    r.horizontalPadding, r.h(20), r.horizontalPadding, r.h(4)),
                 child: Text(
                   l10n.t('categories'),
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: TextStyle(
+                    fontSize: r.sp(18),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -141,10 +149,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 48,
+                height: r.h(48),
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: r.horizontalPadding),
                   children: [
                     CategoryChip(
                       label: l10n.t('allProducts'),
@@ -152,15 +161,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       isSelected: _selectedCategory == 'All',
                       onTap: () => setState(() => _selectedCategory = 'All'),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: r.w(8)),
                     ...categories.map((cat) {
                       return Padding(
-                        padding: const EdgeInsets.only(right: 8),
+                        padding: EdgeInsets.only(right: r.w(8)),
                         child: CategoryChip(
                           label: cat,
                           icon: CategoryChip.getCategoryIcon(cat),
                           isSelected: _selectedCategory == cat,
-                          onTap: () => setState(() => _selectedCategory = cat),
+                          onTap: () =>
+                              setState(() => _selectedCategory = cat),
                         ),
                       );
                     }),
@@ -172,7 +182,8 @@ class _HomeScreenState extends State<HomeScreen> {
             // Featured label
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                padding: EdgeInsets.fromLTRB(
+                    r.horizontalPadding, r.h(20), r.horizontalPadding, r.h(12)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -180,8 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       _selectedCategory == 'All'
                           ? l10n.t('featured')
                           : _selectedCategory,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: r.sp(18),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -189,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       '${_filteredProducts.length} ${l10n.t('items')}',
                       style: TextStyle(
                         color: Colors.grey.shade500,
-                        fontSize: 13,
+                        fontSize: r.sp(13),
                       ),
                     ),
                   ],
@@ -199,13 +210,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Product Grid
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: r.horizontalPadding),
               sliver: SliverGrid(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
                   childAspectRatio: aspectRatio,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  crossAxisSpacing: r.w(12),
+                  mainAxisSpacing: r.w(12),
                 ),
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -226,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+            SliverPadding(padding: EdgeInsets.only(bottom: r.h(24))),
           ],
         ),
       ),

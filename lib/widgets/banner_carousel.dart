@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 import '../l10n/app_localizations.dart';
 
 class BannerCarousel extends StatefulWidget {
@@ -46,18 +47,20 @@ class _BannerCarouselState extends State<BannerCarousel> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final r = ResponsiveHelper(context);
 
     return Column(
       children: [
         SizedBox(
-          height: 160,
+          height: r.bannerHeight,
           child: PageView.builder(
             controller: _controller,
             itemCount: _banners.length,
             itemBuilder: (context, index) {
               final banner = _banners[index];
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding:
+                    EdgeInsets.symmetric(horizontal: r.horizontalPadding),
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -65,48 +68,52 @@ class _BannerCarouselState extends State<BannerCarousel> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.radiusLG),
                   ),
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(r.cardPadding),
                   child: Row(
                     children: [
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Text(
                               l10n.t(banner.titleKey),
-                              style: const TextStyle(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 22,
+                                fontSize: r.sp(18),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: r.h(4)),
                             Text(
                               '${l10n.t('upTo')} ${banner.discount} ${l10n.t('off')}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 14,
+                                fontSize: r.sp(13),
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: r.h(8)),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: r.w(14),
+                                vertical: r.h(6),
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(AppDimens.radiusRound),
+                                borderRadius: BorderRadius.circular(
+                                    AppDimens.radiusRound),
                               ),
                               child: Text(
                                 l10n.t('shopNow'),
                                 style: TextStyle(
                                   color: banner.gradient[0],
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                                  fontSize: r.sp(13),
                                 ),
                               ),
                             ),
@@ -115,7 +122,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
                       ),
                       Icon(
                         banner.icon,
-                        size: 80,
+                        size: r.iconSize(60),
                         color: Colors.white.withValues(alpha: 0.3),
                       ),
                     ],
@@ -125,13 +132,13 @@ class _BannerCarouselState extends State<BannerCarousel> {
             },
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: r.h(12)),
         SmoothPageIndicator(
           controller: _controller,
           count: _banners.length,
           effect: WormEffect(
-            dotHeight: 8,
-            dotWidth: 8,
+            dotHeight: r.w(8).clamp(6.0, 10.0),
+            dotWidth: r.w(8).clamp(6.0, 10.0),
             activeDotColor: AppColors.primary,
             dotColor: Colors.grey.shade300,
           ),

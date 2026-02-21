@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 
 class RatingStars extends StatelessWidget {
   final double rating;
@@ -17,34 +18,37 @@ class RatingStars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final r = ResponsiveHelper(context);
+    final scaledSize = r.iconSize(size);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         ...List.generate(5, (index) {
           if (index < rating.floor()) {
-            return Icon(Icons.star, color: AppColors.star, size: size);
+            return Icon(Icons.star, color: AppColors.star, size: scaledSize);
           } else if (index < rating) {
-            return Icon(Icons.star_half, color: AppColors.star, size: size);
+            return Icon(Icons.star_half, color: AppColors.star, size: scaledSize);
           } else {
-            return Icon(Icons.star_border, color: AppColors.star, size: size);
+            return Icon(Icons.star_border, color: AppColors.star, size: scaledSize);
           }
         }),
         if (showText) ...[
-          const SizedBox(width: 6),
+          SizedBox(width: r.w(6)),
           Text(
             rating.toStringAsFixed(1),
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: size * 0.75,
+              fontSize: r.sp(size * 0.75),
             ),
           ),
           if (reviewCount != null) ...[
-            const SizedBox(width: 4),
+            SizedBox(width: r.w(4)),
             Text(
               '($reviewCount)',
               style: TextStyle(
                 color: Colors.grey.shade500,
-                fontSize: size * 0.7,
+                fontSize: r.sp(size * 0.7),
               ),
             ),
           ],

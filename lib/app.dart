@@ -6,8 +6,10 @@ import 'providers/cart_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/wishlist_provider.dart';
+import 'screens/auth_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/checkout_screen.dart';
 import 'screens/home_screen.dart';
@@ -34,6 +36,7 @@ class ShopVibeApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(
         builder: (context, themeProvider, localeProvider, child) {
@@ -62,6 +65,7 @@ class ShopVibeApp extends StatelessWidget {
             initialRoute: AppRoutes.splash,
             routes: {
               AppRoutes.splash: (_) => const SplashScreen(),
+              AppRoutes.auth: (_) => const AuthScreen(),
               AppRoutes.home: (_) => const HomeScreen(),
               AppRoutes.productDetail: (_) => const ProductDetailScreen(),
               AppRoutes.cart: (_) => const CartScreen(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 import '../utils/routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2500),
     );
 
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
@@ -36,7 +37,8 @@ class _SplashScreenState extends State<SplashScreen>
 
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        // Always show the auth screen first.
+        Navigator.pushReplacementNamed(context, AppRoutes.auth);
       }
     });
   }
@@ -49,6 +51,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final r = ResponsiveHelper(context);
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -63,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
         child: Center(
-          child: AnimatedBuilder(
+          child: _AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
               return FadeTransition(
@@ -74,32 +78,32 @@ class _SplashScreenState extends State<SplashScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(24),
+                        padding: EdgeInsets.all(r.cardPadding),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(24),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.shopping_bag,
-                          size: 72,
+                          size: r.iconSize(72),
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: r.h(24)),
                       Text(
                         'ShopVibe',
                         style: GoogleFonts.poppins(
-                          fontSize: 36,
+                          fontSize: r.sp(36),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: 2,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: r.h(8)),
                       Text(
                         'Shop Smart, Live Better',
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
+                          fontSize: r.sp(14),
                           color: Colors.white70,
                           letterSpacing: 1,
                         ),
@@ -116,11 +120,10 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-class AnimatedBuilder extends AnimatedWidget {
+class _AnimatedBuilder extends AnimatedWidget {
   final Widget Function(BuildContext, Widget?) builder;
 
-  const AnimatedBuilder({
-    super.key,
+  const _AnimatedBuilder({
     required Animation<double> animation,
     required this.builder,
   }) : super(listenable: animation);

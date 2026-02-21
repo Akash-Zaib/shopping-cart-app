@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../models/order.dart';
 import '../providers/locale_provider.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 import '../utils/routes.dart';
 
 class OrderConfirmationScreen extends StatefulWidget {
@@ -49,167 +50,199 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
     final order = ModalRoute.of(context)!.settings.arguments as Order;
     final l10n = AppLocalizations.of(context);
     final locale = Provider.of<LocaleProvider>(context, listen: false);
+    final r = ResponsiveHelper(context);
 
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
+          padding: EdgeInsets.all(r.horizontalPadding),
+          child: r.constrainedContent(
+            child: Column(
+              children: [
+                SizedBox(height: r.h(40)),
 
-              // Animated Check
-              AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) {
-                  return FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: AppColors.success.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
+                // Animated Check
+                _AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, _) {
+                    return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: Container(
+                          width: r.iconSize(120),
+                          height: r.iconSize(120),
+                          decoration: BoxDecoration(
+                            color: AppColors.success.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.check_circle,
+                            color: AppColors.success,
+                            size: r.iconSize(80),
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.check_circle,
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: r.h(24)),
+
+                Text(
+                  l10n.t('orderPlaced'),
+                  style: GoogleFonts.poppins(
+                    fontSize: r.sp(28),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.success,
+                  ),
+                ),
+                SizedBox(height: r.h(8)),
+                Text(
+                  l10n.t('orderSuccess'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: r.sp(15),
+                  ),
+                ),
+                SizedBox(height: r.h(32)),
+
+                // Order Details Card
+                Container(
+                  padding: EdgeInsets.all(r.cardPadding),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    children: [
+                      _detailRow(
+                        Icons.receipt_long,
+                        l10n.t('orderId'),
+                        order.id,
+                        r,
+                      ),
+                      const Divider(height: 24),
+                      _detailRow(
+                        Icons.calendar_today,
+                        l10n.t('orderDate'),
+                        DateFormat.yMMMd().add_jm().format(order.orderDate),
+                        r,
+                      ),
+                      const Divider(height: 24),
+                      _detailRow(
+                        Icons.shopping_bag_outlined,
+                        l10n.t('items'),
+                        '${order.itemCount} ${l10n.t('items')}',
+                        r,
+                      ),
+                      const Divider(height: 24),
+                      _detailRow(
+                        Icons.payment,
+                        l10n.t('paymentMethod'),
+                        order.paymentMethod,
+                        r,
+                      ),
+                      const Divider(height: 24),
+                      _detailRow(
+                        Icons.attach_money,
+                        l10n.t('total'),
+                        locale.formatPrice(order.totalAmount),
+                        r,
+                        valueStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: r.sp(18),
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: r.h(16)),
+
+                // Status
+                Container(
+                  padding: EdgeInsets.all(r.cardPadding),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check_circle,
+                          color: AppColors.success, size: r.iconSize(20)),
+                      SizedBox(width: r.w(8)),
+                      Text(
+                        '${l10n.t('placed')} ✓',
+                        style: TextStyle(
                           color: AppColors.success,
-                          size: 80,
+                          fontWeight: FontWeight.w600,
+                          fontSize: r.sp(16),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+                SizedBox(height: r.h(40)),
 
-              Text(
-                l10n.t('orderPlaced'),
-                style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.success,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.t('orderSuccess'),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 15,
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Order Details Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Column(
-                  children: [
-                    _detailRow(
-                      Icons.receipt_long,
-                      l10n.t('orderId'),
-                      order.id,
+                // Buttons
+                SizedBox(
+                  width: double.infinity,
+                  height: r.buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        AppRoutes.home,
+                        (route) => false,
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.shopping_bag_outlined,
+                            size: r.iconSize(18)),
+                        SizedBox(width: r.w(8)),
+                        Flexible(
+                          child: Text(l10n.t('continueShopping'),
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: r.sp(14))),
+                        ),
+                      ],
                     ),
-                    const Divider(height: 24),
-                    _detailRow(
-                      Icons.calendar_today,
-                      l10n.t('orderDate'),
-                      DateFormat.yMMMd().add_jm().format(order.orderDate),
-                    ),
-                    const Divider(height: 24),
-                    _detailRow(
-                      Icons.shopping_bag_outlined,
-                      l10n.t('items'),
-                      '${order.itemCount} ${l10n.t('items')}',
-                    ),
-                    const Divider(height: 24),
-                    _detailRow(
-                      Icons.payment,
-                      l10n.t('paymentMethod'),
-                      order.paymentMethod,
-                    ),
-                    const Divider(height: 24),
-                    _detailRow(
-                      Icons.attach_money,
-                      l10n.t('total'),
-                      locale.formatPrice(order.totalAmount),
-                      valueStyle: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // Status
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.check_circle, color: AppColors.success, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${l10n.t('placed')} ✓',
-                      style: const TextStyle(
-                        color: AppColors.success,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
+                SizedBox(height: r.h(12)),
+                SizedBox(
+                  width: double.infinity,
+                  height: r.buttonHeight,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        AppRoutes.home,
+                        (route) => false,
+                      );
+                      Navigator.pushNamed(context, AppRoutes.orderHistory);
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.list_alt, size: r.iconSize(18)),
+                        SizedBox(width: r.w(8)),
+                        Flexible(
+                          child: Text(l10n.t('viewOrders'),
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: r.sp(14))),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 40),
-
-              // Buttons
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      AppRoutes.home,
-                      (route) => false,
-                    );
-                  },
-                  icon: const Icon(Icons.shopping_bag_outlined),
-                  label: Text(l10n.t('continueShopping')),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      AppRoutes.home,
-                      (route) => false,
-                    );
-                    Navigator.pushNamed(context, AppRoutes.orderHistory);
-                  },
-                  icon: const Icon(Icons.list_alt),
-                  label: Text(l10n.t('viewOrders')),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -219,13 +252,14 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
   Widget _detailRow(
     IconData icon,
     String label,
-    String value, {
+    String value,
+    ResponsiveHelper r, {
     TextStyle? valueStyle,
   }) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: AppColors.primary),
-        const SizedBox(width: 12),
+        Icon(icon, size: r.iconSize(20), color: AppColors.primary),
+        SizedBox(width: r.w(12)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,16 +268,16 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                 label,
                 style: TextStyle(
                   color: Colors.grey.shade500,
-                  fontSize: 12,
+                  fontSize: r.sp(12),
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: r.h(2)),
               Text(
                 value,
                 style: valueStyle ??
-                    const TextStyle(
+                    TextStyle(
                       fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                      fontSize: r.sp(14),
                     ),
               ),
             ],
@@ -254,11 +288,10 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
   }
 }
 
-class AnimatedBuilder extends AnimatedWidget {
+class _AnimatedBuilder extends AnimatedWidget {
   final Widget Function(BuildContext, Widget?) builder;
 
-  const AnimatedBuilder({
-    super.key,
+  const _AnimatedBuilder({
     required Animation<double> animation,
     required this.builder,
   }) : super(listenable: animation);

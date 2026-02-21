@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/wishlist_provider.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 import '../utils/routes.dart';
 import '../widgets/product_card.dart';
-import '../widgets/responsive_layout.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
@@ -14,8 +14,9 @@ class WishlistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final wishlist = Provider.of<WishlistProvider>(context);
-    final crossAxisCount = ResponsiveLayout.getGridCrossAxisCount(context);
-    final aspectRatio = ResponsiveLayout.getGridChildAspectRatio(context);
+    final r = ResponsiveHelper(context);
+    final crossAxisCount = r.gridCrossAxisCount;
+    final aspectRatio = r.gridChildAspectRatio;
 
     return Scaffold(
       appBar: AppBar(
@@ -32,7 +33,8 @@ class WishlistScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppDimens.radiusMD),
                     ),
                     title: const Text('Clear Wishlist'),
-                    content: const Text('Remove all items from your wishlist?'),
+                    content:
+                        const Text('Remove all items from your wishlist?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
@@ -58,53 +60,67 @@ class WishlistScreen extends StatelessWidget {
       body: wishlist.items.isEmpty
           ? Center(
               child: Padding(
-                padding: const EdgeInsets.all(32),
+                padding: EdgeInsets.all(r.horizontalPadding * 2),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.favorite_border,
-                      size: 100,
+                      size: r.iconSize(100),
                       color: Colors.grey.shade300,
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: r.h(24)),
                     Text(
                       l10n.t('emptyWishlist'),
-                      style: const TextStyle(
-                        fontSize: 22,
+                      style: TextStyle(
+                        fontSize: r.sp(22),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: r.h(8)),
                     Text(
                       l10n.t('emptyWishlistDesc'),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.grey.shade500,
-                        fontSize: 15,
+                        fontSize: r.sp(15),
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    ElevatedButton.icon(
-                      onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        AppRoutes.home,
-                        (route) => false,
+                    SizedBox(height: r.h(32)),
+                    SizedBox(
+                      height: r.buttonHeight,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          AppRoutes.home,
+                          (route) => false,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.shopping_bag_outlined,
+                                size: r.iconSize(18)),
+                            SizedBox(width: r.w(8)),
+                            Flexible(
+                              child: Text(l10n.t('browseProducts'),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: r.sp(14))),
+                            ),
+                          ],
+                        ),
                       ),
-                      icon: const Icon(Icons.shopping_bag_outlined),
-                      label: Text(l10n.t('browseProducts')),
                     ),
                   ],
                 ),
               ),
             )
           : GridView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(r.horizontalPadding),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: crossAxisCount,
                 childAspectRatio: aspectRatio,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+                crossAxisSpacing: r.w(12),
+                mainAxisSpacing: r.w(12),
               ),
               itemCount: wishlist.items.length,
               itemBuilder: (context, index) {

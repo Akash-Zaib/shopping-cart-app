@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 
 class CategoryChip extends StatelessWidget {
   final String label;
@@ -36,11 +37,13 @@ class CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final r = ResponsiveHelper(context);
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: r.w(16), vertical: r.h(10)),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(AppDimens.radiusRound),
@@ -62,16 +65,16 @@ class CategoryChip extends StatelessWidget {
           children: [
             Icon(
               icon,
-              size: 18,
+              size: r.iconSize(18),
               color: isSelected ? Colors.white : AppColors.textSecondary,
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: r.w(6)),
             Text(
               label,
               style: TextStyle(
                 color: isSelected ? Colors.white : AppColors.textSecondary,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                fontSize: 13,
+                fontSize: r.sp(13),
               ),
             ),
           ],

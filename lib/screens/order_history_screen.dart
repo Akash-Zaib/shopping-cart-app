@@ -6,6 +6,7 @@ import '../models/order.dart';
 import '../providers/locale_provider.dart';
 import '../providers/order_provider.dart';
 import '../utils/constants.dart';
+import '../utils/responsive_helper.dart';
 
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
@@ -15,41 +16,48 @@ class OrderHistoryScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final orders = Provider.of<OrderProvider>(context);
     final locale = Provider.of<LocaleProvider>(context, listen: false);
+    final r = ResponsiveHelper(context);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.t('orderHistory'))),
       body: orders.orders.isEmpty
-          ? _buildEmpty(context, l10n)
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: orders.orders.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final order = orders.orders[index];
-                return _buildOrderCard(context, order, locale, l10n);
-              },
+          ? _buildEmpty(context, l10n, r)
+          : r.constrainedContent(
+              child: ListView.separated(
+                padding: EdgeInsets.all(r.horizontalPadding),
+                itemCount: orders.orders.length,
+                separatorBuilder: (_, __) => SizedBox(height: r.h(12)),
+                itemBuilder: (context, index) {
+                  final order = orders.orders[index];
+                  return _buildOrderCard(context, order, locale, l10n, r);
+                },
+              ),
             ),
     );
   }
 
-  Widget _buildEmpty(BuildContext context, AppLocalizations l10n) {
+  Widget _buildEmpty(
+      BuildContext context, AppLocalizations l10n, ResponsiveHelper r) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(r.horizontalPadding * 2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.receipt_long, size: 100, color: Colors.grey.shade300),
-            const SizedBox(height: 24),
+            Icon(Icons.receipt_long,
+                size: r.iconSize(100), color: Colors.grey.shade300),
+            SizedBox(height: r.h(24)),
             Text(
               l10n.t('noOrders'),
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: r.sp(22), fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: r.h(8)),
             Text(
               l10n.t('noOrdersDesc'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 15),
+              style: TextStyle(
+                  color: Colors.grey.shade500, fontSize: r.sp(15)),
             ),
           ],
         ),
@@ -62,6 +70,7 @@ class OrderHistoryScreen extends StatelessWidget {
     Order order,
     LocaleProvider locale,
     AppLocalizations l10n,
+    ResponsiveHelper r,
   ) {
     String statusText;
     Color statusColor;
@@ -85,7 +94,7 @@ class OrderHistoryScreen extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(r.cardPadding),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppDimens.radiusMD),
@@ -106,15 +115,16 @@ class OrderHistoryScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   order.id,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: r.sp(14),
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                    horizontal: r.w(10), vertical: r.h(4)),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppDimens.radiusRound),
@@ -124,27 +134,34 @@ class OrderHistoryScreen extends StatelessWidget {
                   style: TextStyle(
                     color: statusColor,
                     fontWeight: FontWeight.w600,
-                    fontSize: 12,
+                    fontSize: r.sp(12),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: r.h(10)),
           Row(
             children: [
-              Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade500),
-              const SizedBox(width: 6),
+              Icon(Icons.calendar_today,
+                  size: r.iconSize(14), color: Colors.grey.shade500),
+              SizedBox(width: r.w(6)),
               Text(
                 DateFormat.yMMMd().format(order.orderDate),
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                style: TextStyle(
+                    color: Colors.grey.shade500, fontSize: r.sp(13)),
               ),
-              const SizedBox(width: 16),
-              Icon(Icons.payment, size: 14, color: Colors.grey.shade500),
-              const SizedBox(width: 6),
-              Text(
-                order.paymentMethod,
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+              SizedBox(width: r.w(16)),
+              Icon(Icons.payment,
+                  size: r.iconSize(14), color: Colors.grey.shade500),
+              SizedBox(width: r.w(6)),
+              Flexible(
+                child: Text(
+                  order.paymentMethod,
+                  style: TextStyle(
+                      color: Colors.grey.shade500, fontSize: r.sp(13)),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -154,13 +171,14 @@ class OrderHistoryScreen extends StatelessWidget {
             children: [
               Text(
                 '${order.itemCount} ${l10n.t('items')}',
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(
+                    color: Colors.grey.shade600, fontSize: r.sp(14)),
               ),
               Text(
                 locale.formatPrice(order.totalAmount),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: r.sp(16),
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),

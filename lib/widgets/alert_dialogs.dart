@@ -13,7 +13,12 @@ class AppAlertDialogs {
           children: [
             const Icon(Icons.check_circle, color: Colors.white, size: 20),
             const SizedBox(width: 8),
-            Text(l10n.t('addedToCart')),
+            Flexible(
+              child: Text(
+                l10n.t('addedToCart'),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         behavior: SnackBarBehavior.floating,
