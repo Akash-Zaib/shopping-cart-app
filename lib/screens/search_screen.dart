@@ -236,8 +236,8 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             SizedBox(height: r.h(12)),
             Wrap(
-              spacing: r.w(8),
-              runSpacing: r.h(8),
+              spacing: 8,
+              runSpacing: 8,
               children: categories.map((cat) {
                 return GestureDetector(
                   onTap: () {
@@ -265,8 +265,8 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             SizedBox(height: r.h(12)),
             Wrap(
-              spacing: r.w(8),
-              runSpacing: r.h(8),
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 _buildSuggestionChip('Headphones', r),
                 _buildSuggestionChip('Leather Jacket', r),

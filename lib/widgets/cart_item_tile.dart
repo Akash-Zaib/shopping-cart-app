@@ -100,7 +100,7 @@ class CartItemTile extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: r.w(12)),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +114,7 @@ class CartItemTile extends StatelessWidget {
                       fontSize: r.sp(14),
                     ),
                   ),
-                  SizedBox(height: r.h(4)),
+                  const SizedBox(height: 4),
                   if (item.selectedColor != null ||
                       item.selectedSize != null)
                     Text(
@@ -127,9 +127,11 @@ class CartItemTile extends StatelessWidget {
                         color: Colors.grey.shade500,
                       ),
                     ),
-                  SizedBox(height: r.h(6)),
+                  const SizedBox(height: 6),
                   Text(
                     locale.formatPrice(item.product.discountedPrice),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: r.sp(15),
@@ -139,25 +141,27 @@ class CartItemTile extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(width: 8),
             Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                border: Border.all(color: Colors.grey.shade300),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.remove, size: r.iconSize(18)),
+                    icon: const Icon(Icons.remove, size: 18),
                     onPressed: () =>
                         cart.decrementQuantity(item.product.id),
-                    constraints: BoxConstraints(
-                        minWidth: r.w(36), minHeight: r.h(36)),
+                    constraints: const BoxConstraints(
+                        minWidth: 36, minHeight: 36),
                     padding: EdgeInsets.zero,
                   ),
                   Padding(
                     padding:
-                        EdgeInsets.symmetric(horizontal: r.w(4)),
+                        const EdgeInsets.symmetric(horizontal: 6),
                     child: Text(
                       '${item.quantity}',
                       style: TextStyle(
@@ -167,11 +171,11 @@ class CartItemTile extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.add, size: r.iconSize(18)),
+                    icon: const Icon(Icons.add, size: 18),
                     onPressed: () =>
                         cart.incrementQuantity(item.product.id),
-                    constraints: BoxConstraints(
-                        minWidth: r.w(36), minHeight: r.h(36)),
+                    constraints: const BoxConstraints(
+                        minWidth: 36, minHeight: 36),
                     padding: EdgeInsets.zero,
                   ),
                 ],

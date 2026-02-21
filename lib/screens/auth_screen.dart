@@ -112,7 +112,7 @@ class _AuthScreenState extends State<AuthScreen>
             opacity: _fadeAnim,
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: r.horizontalPadding),
-              child: r.constrainedContent(
+              child: r.constrainedForm(
                 child: Column(
                   children: [
                     SizedBox(height: r.h(16)),

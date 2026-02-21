@@ -11,6 +11,10 @@ class ResponsiveHelper {
   static const double _designWidth = 375.0;
   static const double _designHeight = 812.0;
 
+  /// Maximum multiplier so `w()` / `h()` don't explode on large screens.
+  static const double _maxWidthFactor = 1.5;
+  static const double _maxHeightFactor = 1.5;
+
   final BuildContext context;
   late final Size _screen;
   late final Orientation _orientation;
@@ -38,21 +42,27 @@ class ResponsiveHelper {
 
   // ── Scale factors ───────────────────────────────────────────────────
 
-  /// Width scale relative to the design baseline.
-  double get widthFactor => _screen.width / _designWidth;
+  /// Raw width scale relative to the design baseline.
+  double get _rawWidthFactor => _screen.width / _designWidth;
 
-  /// Height scale relative to the design baseline.
-  double get heightFactor => _screen.height / _designHeight;
+  /// Raw height scale relative to the design baseline.
+  double get _rawHeightFactor => _screen.height / _designHeight;
+
+  /// Width scale clamped so desktop screens don't blow up sizes.
+  double get widthFactor => _rawWidthFactor.clamp(0.8, _maxWidthFactor);
+
+  /// Height scale clamped so desktop screens don't blow up sizes.
+  double get heightFactor => _rawHeightFactor.clamp(0.8, _maxHeightFactor);
 
   /// Conservative text-scale factor (clamped 0.85 – 1.3).
-  double get textScale => (widthFactor).clamp(0.85, 1.3);
+  double get textScale => (_rawWidthFactor).clamp(0.85, 1.3);
 
   // ── Proportional helpers ────────────────────────────────────────────
 
-  /// Scale an arbitrary [value] by the width factor.
+  /// Scale an arbitrary [value] by the (clamped) width factor.
   double w(double value) => value * widthFactor;
 
-  /// Scale an arbitrary [value] by the height factor.
+  /// Scale an arbitrary [value] by the (clamped) height factor.
   double h(double value) => value * heightFactor;
 
   /// Scale a font [size] using the text-scale factor.
@@ -74,10 +84,12 @@ class ResponsiveHelper {
   double get inputHeight => h(52).clamp(42.0, 60.0);
 
   /// Dynamic icon size from a [base] design value.
-  double iconSize(double base) => (base * widthFactor).clamp(base * 0.85, base * 1.4);
+  double iconSize(double base) =>
+      (base * widthFactor).clamp(base * 0.85, base * 1.4);
 
   /// Dynamic image height from a [base] design value.
-  double imageHeight(double base) => (base * heightFactor).clamp(base * 0.8, base * 1.5);
+  double imageHeight(double base) =>
+      (base * heightFactor).clamp(base * 0.8, base * 1.5);
 
   /// Card / section internal padding.
   double get cardPadding {
@@ -86,16 +98,26 @@ class ResponsiveHelper {
     return w(16).clamp(12.0, 20.0);
   }
 
-  /// Maximum content width for single-column screens (auth, cart, checkout…).
+  /// Maximum content width for wide/grid screens (cart list, order history…).
   double get maxContentWidth {
-    if (isDesktop) return 600.0;
-    if (isTablet) return 540.0;
+    if (isDesktop) return 1100.0;
+    if (isTablet) return 700.0;
     return double.infinity; // no constraint on phone
   }
 
-  /// Product-grid cross-axis count considering orientation.
+  /// Maximum width for narrow single-column forms (auth, checkout, settings).
+  double get maxFormWidth {
+    if (isDesktop) return 600.0;
+    if (isTablet) return 540.0;
+    return double.infinity;
+  }
+
+  /// Product-grid cross-axis count considering orientation & screen width.
   int get gridCrossAxisCount {
-    if (isDesktop) return isLandscape ? 5 : 4;
+    if (isDesktop) {
+      if (_screen.width >= 1400) return 5;
+      return isLandscape ? 5 : 4;
+    }
     if (isTablet) return isLandscape ? 4 : 3;
     return isLandscape ? 3 : 2;
   }
@@ -109,14 +131,15 @@ class ResponsiveHelper {
 
   /// SliverAppBar expanded-height for product detail.
   double get productImageHeight {
+    if (isDesktop) return _screen.height * 0.80;
     if (isLandscape) return _screen.height * 0.55;
     return _screen.height * 0.45;
   }
 
   /// Banner carousel height.
   double get bannerHeight {
-    if (isDesktop) return 200.0;
-    if (isTablet) return 180.0;
+    if (isDesktop) return 220.0;
+    if (isTablet) return 190.0;
     return h(160).clamp(130.0, 200.0);
   }
 
@@ -127,14 +150,25 @@ class ResponsiveHelper {
     return w(55).clamp(45.0, 65.0);
   }
 
-  // ── Convenience widget wrapper ──────────────────────────────────────
+  // ── Convenience widget wrappers ────────────────────────────────────
 
   /// Wraps [child] in a centered, width-constrained box suitable for
-  /// single-column layouts on wide screens.
+  /// wide/grid layouts on wide screens.
   Widget constrainedContent({required Widget child}) {
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxContentWidth),
+        child: child,
+      ),
+    );
+  }
+
+  /// Wraps [child] in a centered, narrow-width-constrained box suitable for
+  /// single-column form layouts (auth, checkout, settings).
+  Widget constrainedForm({required Widget child}) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxFormWidth),
         child: child,
       ),
     );

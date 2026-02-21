@@ -53,7 +53,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(r.horizontalPadding),
-              child: r.constrainedContent(
+              child: r.constrainedForm(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -236,7 +236,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
       child: SafeArea(
         top: false,
-        child: r.constrainedContent(
+        child: r.constrainedForm(
           child: SizedBox(
             width: double.infinity,
             height: r.buttonHeight,

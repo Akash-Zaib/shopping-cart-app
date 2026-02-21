@@ -21,7 +21,7 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: Text(l10n.t('settings'))),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(r.horizontalPadding),
-        child: r.constrainedContent(
+        child: r.constrainedForm(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

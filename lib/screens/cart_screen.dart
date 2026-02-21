@@ -161,7 +161,7 @@ class CartScreen extends StatelessWidget {
         ],
       ),
       child: SafeArea(
-        child: r.constrainedContent(
+        child: r.constrainedForm(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

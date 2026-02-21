@@ -56,7 +56,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(r.horizontalPadding),
-          child: r.constrainedContent(
+          child: r.constrainedForm(
             child: Column(
               children: [
                 SizedBox(height: r.h(40)),

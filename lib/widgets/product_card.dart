@@ -124,10 +124,10 @@ class ProductCard extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 3,
+              flex: 4,
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: r.w(8), vertical: r.h(4)),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 6),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,7 +146,7 @@ class ProductCard extends StatelessWidget {
                         Icon(Icons.star,
                             color: AppColors.star,
                             size: r.iconSize(14)),
-                        SizedBox(width: r.w(2)),
+                        const SizedBox(width: 3),
                         Text(
                           '${product.rating}',
                           style: TextStyle(
@@ -167,6 +167,8 @@ class ProductCard extends StatelessWidget {
                           child: Text(
                             locale.formatPrice(
                                 product.discountedPrice),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: r.sp(14),
@@ -187,7 +189,7 @@ class ProductCard extends StatelessWidget {
                                     .showAddedToCartSnackBar(context);
                               },
                               child: Container(
-                                padding: EdgeInsets.all(r.w(8)),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: AppColors.primary,
                                   borderRadius: BorderRadius.circular(
